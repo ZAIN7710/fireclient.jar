@@ -1,0 +1,715 @@
+--->
+package com.example.modname;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.input.Mouse;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.ModEventBus;
+import net.minecraftforge.fml.common.Mod;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
+
+@Mod("modname")  // Replace modname with your mod's ID
+public class ModName {
+
+    // Create a KeyBinding for the right shift key
+    private static final KeyBinding MODS_KEYBIND = new KeyBinding(
+            "key.modname.mods", GLFW.GLFW_KEY_LEFT_SHIFT, "key.categories.misc"
+    );
+
+    public ModName() {
+        // Register the keybinding with the Minecraft client
+        IEventBus modEventBus = MinecraftForge.EVENT_BUS;
+        modEventBus.addListener(this::onClientSetup);
+        modEventBus.addListener(this::onKeyInput);
+
+        // Register ourselves for server and other game events
+        modEventBus.register(this);
+    }
+
+    private void onClientSetup(final FMLCommonSetupEvent event) {
+        // This is where you can initialize anything before the game starts
+        MinecraftClient.getInstance().options.keysAll.add(MODS_KEYBIND);
+    }
+
+    private void onKeyInput(final InputEvent.Key event) {
+        // Check if the MODS_KEYBIND is pressed (right shift key)
+        if (MODS_KEYBIND.isPressed()) {
+            // Open a custom screen with the Mods button
+            MinecraftClient.getInstance().setScreen(new ModsScreen());
+        }
+    }
+
+    // A simple custom screen with a "Mods" button
+    public static class ModsScreen extends Screen {
+
+        public ModsScreen() {
+            super(new TextComponent("Mods Screen"));
+        }
+
+        @Override
+        protected void init() {
+            // Create a button to represent "Mods"
+            this.addButton(new ButtonWidget(this.width / 2 - 100, this.height / 2, 200, 20, new TextComponent("Mods"), (button) -> {
+                // Action when the button is clicked, you can handle your mods logic here
+                System.out.println("Mod
+modLoader="javafml"
+loaderVersion="[36,)" # Minecraft Forge version
+license="MIT"
+issueTrackerURL="https://example.com/issue-tracker"
+modId="modname"  # Your mod's ID
+version="1.0.0"
+displayName="Mod"
+description='''A simple mod with a custom "Mods" button triggered by pressing the right shift key.'''package com.example.modname;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.MinecraftClient;
+import net.minecraftfabric.api.distmarker.Dist;
+import net.minecraftfabric.common.MinecraftForge;
+import net.minecraftfabric.event.server.ServerStartingEvent;
+import net.minecraftfabric.eventbus.api.IEventBus;
+import net.minecraftfabric.eventbus.api.ModEventBus;
+import net.minecraftfabric.eventbus.api.SubscribeEvent;
+import net.minecraftfabric.eventbus.api.Event;import org.lwjgl.glfw.GLFW;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Mod("modname")  // Replace modname with your mod's ID
+public class ModName {
+
+    private static final KeyBinding MODS_KEYBIND = new KeyBinding(
+            "key.modname.mods", GLFW.GLFW_KEY_LEFT_SHIFT, "key.categories.misc"
+    );
+
+    public ModName() {
+        IEventBus modEventBus = MinecraftForge.EVENT_BUS;
+        modEventBus.addListener(this::onClientSetup);
+        modEventBus.addListener(this::onKeyInput);
+
+        modEventBus.register(this);
+    }
+
+    private void onClientSetup(final FMLCommonSetupEvent event) {
+        MinecraftClient.getInstance().options.keysAll.add(MODS_KEYBIND);
+    }
+
+    private void onKeyInput(final InputEvent.Key event) {
+        if (MODS_KEYBIND.isPressed()) {
+            MinecraftClient.getInstance().setScreen(new ModsScreen());
+        }
+    }
+
+    // Main Mods Screen
+    public static class ModsScreen extends Screen {
+
+        private Map<String, Boolean> modStates = new HashMap<>();
+
+        public ModsScreen() {
+            super(new TextComponent("Mods Menu"));
+        }
+
+        @Override
+        protected void init() {
+            // Initializing the mod states (enabled/disabled)
+            modStates.put("Armor Durability", true);
+            modStates.put("Keystrokes", true);
+            modStates.put("FPS", true);
+            modStates.put("Health Indicator", true);
+
+            // Create buttons for each mod
+            int startY = this.height / 2 - 50;
+            int spacing = 30;
+
+            for (String modName : modStates.keySet()) {
+                boolean isEnabled = modStates.get(modName);
+                this.addButton(new ButtonWidget(this.width / 2 - 100, startY, 200, 20,
+                        new TextComponent(modName + (isEnabled ? " (Enabled)" : " (Disabled)")),
+                        button -> toggleMod(modName)));
+                startY += spacing;
+            }
+        }
+
+        private void toggleMod(String modName) {
+            // Toggle the mod's enabled state and update button text
+            boolean isEnabled = modStates.get(modName);
+            modStates.put(modName, !isEnabled);
+
+            // Update the button text to reflect the new state
+            MinecraftClient.getInstance().setScreen(new ModsScreen());
+        }
+
+        @Override
+        public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+            this.renderBackground(matrices);
+            super.render(matrices, mouseX, mouseY, delta);
+        }
+
+        @Override
+        public boolean shouldCloseOnEsc() {
+            return true;
+        }
+    }
+
+    // Individual mod setting screen (for example, Armor Durability)
+    public static class ModSettingsScreen extends Screen {
+        private String modName;
+        private TextFieldWidget settingField;
+        private boolean modEnabled;
+
+        public ModSettingsScreen(String modName, boolean modEnabled) {
+    
+package com.example.examplemod;
+
+import net.fabricmc.api.ModInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ExampleMod implements ModInitializer {
+
+    // Create a logger instance for your mod
+    public static final Logger LOGGER = LoggerFactory.getLogger("examplemod");
+
+    @Override
+    public void onInitialize() {
+        // This is the entry point for your mod
+        LOGGER.info("Hello Fabric world!");
+    }
+}
+
+{
+  "schemaVersion": 1,
+  "id": "examplemod",
+  "version": "1.0.0",
+  "name": "Example Mod",
+  "description": "A simple example mod using Fabric",
+  "authors": [
+    "Your Name"
+  ],
+  "contact": {
+    "homepage": "https://example.com",
+    "sources": "https://github.com/example/examplemod"
+  },
+  "license": "MIT",
+  "icon": "assets/examplemod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.examplemod.ExampleMod"
+    ]
+  },
+  "depends": {
+    "fabric-api": "*"
+  }
+}
+dependencies {
+    // Fabric API
+    modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Minecraft, Yarn, Loom, and other dependencies
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_version}:v2"
+    modCompile "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+}
+package com.example.examplemod;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
+
+public class ExampleMod implements ModInitializer {
+    private static final String MOD_ID = "examplemod";
+    private static final MinecraftClient client = MinecraftClient.getInstance();
+    
+    // Keybinding for opening the settings menu
+    private static KeyBinding openSettingsKeyBinding;
+
+    @Override
+    public void onInitialize() {
+        // Register the keybinding for the "Open Settings" action (Right Shift)
+        openSettingsKeyBinding = FabricKeyBinding.Builder.create(
+                new Identifier(MOD_ID, "open_settings"),
+                GLFW.GLFW_KEY_LEFT_SHIFT, // Right Shift keycode (GLFW_KEY_RIGHT_SHIFT could also be used)
+                "category." + MOD_ID
+        ).build();
+        KeyBindingHelper.registerKeyBinding(openSettingsKeyBinding);
+    }
+
+    // Called every tick to check if the player is pressing the key
+    public static void onClientTick() {
+        if (openSettingsKeyBinding.isPressed()) {
+            // When Right Shift is pressed, open the settings GUI
+            client.setScreen(new SettingsScreen());
+        }
+    }
+}
+package com.example.examplemod;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.Text;
+import net.minecraft.client.option.GameOptions;
+
+public class SettingsScreen extends Screen {
+
+    private final MinecraftClient client = MinecraftClient.getInstance();
+
+    public SettingsScreen() {
+        super(Text.of("Settings"));
+    }
+
+    @Override
+    protected void init() {
+        // FPS Settings Button
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height / 2 - 10, 200, 20, Text.of("FPS Settings"), button -> {
+            // Toggle FPS (example functionality, you can expand this)
+            GameOptions gameOptions = client.options;
+            int newFpsLimit = (gameOptions.fpsLimit == 60) ? 120 : 60; // Toggle between 60 and 120 FPS
+            gameOptions.fpsLimit = newFpsLimit;
+            client.options.write();  // Save the new settings
+            this.onClose();  // Close the screen after setting
+        }));
+    }
+
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        this.renderBackground(matrices);
+        super.render(matrices, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void onClose() {
+        // Close the settings screen and return to the previous one
+        client.setScreen(null);
+    }
+}
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+
+public class ExampleMod implements ModInitializer {
+
+    @Override
+    public void onInitialize() {
+        // Register the client tick event to listen for key presses
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            onClientTick();
+        });
+    }
+
+    // Check if the Right Shift key is pressed
+    public static void onClientTick() {
+        if (openSettingsKeyBinding.isPressed()) {
+            // Open the settings screen when the key is pressed
+            client.setScreen(new SettingsScreen());
+        }
+    }
+}
+package com.example.examplemod;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.option.GameOptions;
+import net.minecraft.text.Text;
+import net.minecraft.client.option.FpsLimit;
+
+public class SettingsScreen extends Screen {
+
+    private final MinecraftClient client = MinecraftClient.getInstance();
+    private boolean vsyncEnabled; // Track whether V-Sync is enabled or not
+
+    public SettingsScreen() {
+        super(Text.of("Settings"));
+        this.vsyncEnabled = client.options.enableVsync; // Get current V-Sync state
+    }
+
+    @Override
+    protected void init() {
+        // V-Sync Toggle Button
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height / 2 - 30, 200, 20, 
+            Text.of(vsyncEnabled ? "V-Sync: On" : "V-Sync: Off"), button -> {
+                // Toggle V-Sync state
+                vsyncEnabled = !vsyncEnabled;
+                toggleVsync(vsyncEnabled);
+        }));
+    }
+
+    private void toggleVsync(boolean enableVsync) {
+        GameOptions gameOptions = client.options;
+        if (enableVsync) {
+            // V-Sync is ON: Set FPS between 10 and 60
+            gameOptions.fpsLimit = 60;
+            gameOptions.enableVsync = true; // Enable V-Sync in settings
+        } else {
+            // V-Sync is OFF: Set FPS limit to an extremely high value (essentially unlimited)
+            gameOptions.fpsLimit = 1000000;
+            gameOptions.enableVsync = false; // Disable V-Sync in settings
+        }
+        gameOptions.write();  // Save settings
+    }
+
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        this.renderBackground(matrices);
+        super.render(matrices, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void onClose() {
+        // Close the settings screen and return to the previous one
+        client.setScreen(null);
+    }
+}
+package com.example.examplemod;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.client.keybinding.KeyBindingHelper;
+import org.lwjgl.glfw.GLFW;
+
+public class ExampleMod implements ModInitializer {
+    private static final String MOD_ID = "examplemod";
+    private static final MinecraftClient client = MinecraftClient.getInstance();
+    
+    // Keybinding for opening the settings menu (Right Shift)
+    private static KeyBinding openSettingsKeyBinding;
+
+    @Override
+    public void onInitialize() {
+        // Register the keybinding for the "Open Settings" action (Right Shift)
+        openSettingsKeyBinding = FabricKeyBinding.Builder.create(
+                new Identifier(MOD_ID, "open_settings"),
+                GLFW.GLFW_KEY_LEFT_SHIFT, // Right Shift keycode (GLFW_KEY_RIGHT_SHIFT can also be used)
+                "category." + MOD_ID
+        ).build();
+        KeyBindingHelper.registerKeyBinding(openSettingsKeyBinding);
+    }
+
+    // Called every tick to check if the player is pressing the key
+    public static void onClientTick() {
+        if (openSettingsKeyBinding.isPressed()) {
+            // When Right Shift is pressed, open the settings GUI
+            client.setScreen(new SettingsScreen());
+        }
+    }
+}
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+
+public class ExampleMod implements ModInitializer {
+
+    @Override
+    public void onInitialize() {
+        // Register the client tick event to listen for key presses
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            onClientTick();
+        });
+    }
+
+    // Check if the Right Shift key is pressed
+    public static void onClientTick() {
+        if (openSettingsKeyBinding.isPressed()) {
+            // Open the settings screen when the key is pressed
+            client.setScreen(new SettingsScreen());
+        }
+    }
+}
+package com.example.performanceoptimizer;
+
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
+
+public class PerformanceOptimizerMod implements ModInitializer {
+
+    private static final MinecraftClient client = MinecraftClient.getInstance();
+    private static KeyBinding toggleOptimizationsKeyBinding;
+
+    @Override
+    public void onInitialize() {
+        // Register a keybinding for toggling performance optimizations
+        toggleOptimizationsKeyBinding = FabricKeyBinding.Builder.create(
+                new Identifier("performanceoptimizer", "toggle_optimizations"),
+                GLFW.GLFW_KEY_F12, // Bind to F12 (or any key you prefer)
+                "category.performanceoptimizer"
+        ).build();
+        KeyBindingHelper.registerKeyBinding(toggleOptimizationsKeyBinding);
+
+        // Apply ini
+package com.example.performanceoptimizer;
+
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+
+public class PerformanceOptimizerMod implements ModInitializer {
+
+    @Override
+    public void onInitialize() {
+        // Register the client tick event
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            onClientTick();
+        });
+
+        // Apply initial optimizations
+        applyOptimizations();
+    }
+
+    // Rest of the code...
+}
+public static void applyOptimizations() {
+    GameOptions options = client.options;
+
+    // Reduce Render Distance
+    options.viewDistance = 4;  // Lower the render distance to 4 chunks
+
+    // Disable Fancy Graphics (smooth lighting, particles, etc.)
+    options.fancyGraphics = false;  // Disable fancy graphics
+    options.graphicsMode = GameOptions.GraphicsMode.FAST;  // Set graphics mode to 'Fast' (low-end)
+
+    // Set FPS cap dynamically (you could implement logic based on hardware performance)
+    options.fpsLimit = 60;  // Set FPS limit to 60
+
+    // Apply the changes immediately
+    options.write();
+}
+package com.example.fireclient;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.MinecraftClient;
+
+public class FireClientScreen extends Screen {
+    
+    private static final MinecraftClient client = MinecraftClient.getInstance();
+    private static final Identifier LOGO = new Identifier("fireclient", "textures/logo.png"); // Make sure you have this logo in your resources
+    
+    public FireClientScreen() {
+        super(Text.of("FireClient")); // Title for the screen
+    }
+
+    @Override
+    protected void init() {
+        // Set up buttons for closing the screen, like in the default inventory or chest screen
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height / 2 + 30, 200, 20, Text.of("Close"), button -> {
+            this.onClose();
+        }));
+    }
+
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        // Render background
+        this.renderBackground(matrices);
+        
+        // Draw the logo at the top-center of the screen
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        client.getTextureManager().bindTexture(LOGO);
+        this.drawTexture(matrices, this.width / 2 - 50, 10, 0, 0, 100, 50); // Adjust the size and position of the logo
+        
+        // Draw the title "FireClient" below the logo
+        TextRenderer textRenderer = client.textRenderer;
+        textRenderer.draw(matrices, "FireClient", this.width / 2 - textRenderer.getWidth("FireClient") / 2, 70, 0xFFFFFF);
+        
+        // Call the parent method to render the rest of the screen (inventory, chest, etc.)
+        super.render(matrices, mouseX, mouseY, delta);
+    }
+    
+    @Override
+    public void onClose() {
+        // Close the screen and return to the default inventory/chest screen
+        client.setScreen(null);
+    }
+}
+package com.example.fireclient;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
+
+public class FireClientMod implements ModInitializer {
+    
+    private static final MinecraftClient client = MinecraftClient.getInstance();
+
+    @Override
+    public void onInitialize() {
+        // Register the keybinding for opening the FireClient screen
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player != null) {
+                // Listen for inventory opening
+                if (client.player.isSneaking()) {
+                    // Just an example, we use sneaking as an additional condition for testing
+                    client.setScreen(new FireClientScreen());
+                }
+            }
+        });
+    }
+}
+src/main/resources/assets/fireclient/textures/logo.png
+package com.example.fireclient.mixin;
+
+import com.example.fireclient.FireClientScreen;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.Screen;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Redirect;
+
+@Mixin(InventoryScreen.class)
+public abstract class InventoryScreenMixin extends Screen {
+
+    public InventoryScreenMixin() {
+        super(null);
+    }
+
+    @Redirect(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;init()V"))
+    public void init(Screen screen) {
+        // Open FireClientScreen instead of the default inventory screen
+        MinecraftClient.getInstance().setScreen(new FireClientScreen());
+    }
+}
+{
+  "schemaVersion": 1,
+  "id": "fireclient",
+  "version": "1.0.0",
+  "name": "FireClient",
+  "description": "A mod that shows a logo and title in inventories.",
+  "authors": [
+    "YourName"
+  ],
+  "license": "MIT",
+  "main": "com.example.fireclient.FireClientMod",
+  "mixins": [
+    "fireclient.mixins.json"
+  ],
+  "depends": {
+    "fabric-api": "*"
+  }# My Awesome Minecraft Mod
+
+This is a mod that adds new features to Minecraft, such as [describe features].
+
+## Installation
+1. Download the mod `.jar` file.
+2. Place the `.jar` file in your Minecraft mods folder.
+3. Launch Minecraft with Forge/Fabric.
+git clone https://github.com/username/repository-name.git
+git add .
+git commit -m "Describe the changes you made"
+git push origin main
+./gradlew build
+gradlew genEclipseRuns    # For Eclipse users
+gradlew genIntellijRuns   # For IntelliJ users
+gradlew build             # Builds the mod project
+gradlew runClient
+package com.yourmod;
+
+import com.mojang.logging.LogUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.common.EventBus;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaMod;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+// This is the main mod entry class
+@Mod(YourMod.MODID)
+public class YourMod
+{
+    public static final String MODID = "yourmod";
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    public YourMod() {
+        // Create the entry point for mod loading
+        IEventBus modEventBus = FMLJavaMod.MOD_BUS;
+        // Register commonSetup to run during Minecraft's modloading process
+        modEventBus.addListener(this::commonSetup);
+
+        // Register the deferred register for blocks
+        DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event)
+    {
+        LOGGER.info("Common setup for mod {}", MODID);
+    }
+}
+package com.yourmod;
+
+import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
+
+public class YourMod implements ModInitializer {
+
+    @Override
+    public void onInitialize() {
+        // This is the code that runs when your mod is loaded
+        System.out.println("Hello Fabric world!");
+
+        // Send a message to the Minecraft client
+        MinecraftClient.getInstance().player.sendMessage(new TextComponent("Hello, Minecraft 1.21!"), false);
+    }
+}
+gradlew build
+gradlew runClient
+https://github.com/username/repository-name/releases/tag/v1.21
